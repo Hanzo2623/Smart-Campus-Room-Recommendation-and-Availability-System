@@ -150,4 +150,159 @@ void addSchedule() {
     string featInput = readLine("  Features  : (e.g. projector, whiteboard)\n  > ");
     string slot = readLine("  Time Slot : (e.g. 08:00-09:00)\n  > ");
 
+    string err;
+    if (!validSlot(slot, err)) { cout << "  [!] " << err << "\n"; pause(); return; }
+ 
+    Room* r = findRoom(name);
+    if (r) {
+        string conflict;
+        if (hasConflict(r->schedules, slot, conflict)) {
+            cout << "\n  [!] Conflict with existing slot: " << conflict << "\n";
+            pause(); return;
+        }
+        r->schedules.push_back(slot);
+        sort(r->schedules.begin(), r->schedules.end());
+        cout << "\n  [OK] Slot '" << slot << "' added to '" << r->name << "'.\n";
+    } else {
+        rooms.push_back({name, cap, splitComma(featInput), {slot}});
+        cout << "\n  [OK] Room '" << name << "' created with slot '" << slot << "'.\n";
+    }
+    pause();
+}
+void checkAvailability() {
+    clearScreen();
+    printLine('=', 58);
+    cout << "  CHECK ROOM AVAILABILITY" << endl;
+    printLine('=', 58);
+ 
+    cout << "\n  Rooms: ";
+    for (size_t i = 0; i < rooms.size(); i++)
+        cout << rooms[i].name << (i < rooms.size()-1 ? ", " : "");
+    cout << "\n\n";
+ 
+    string name = readLine("  Room Name : ");
+    Room* r = findRoom(name);
+    if (!r) { cout << "  [!] Room not found.\n"; pause(); return; }
+ 
+    string slot = readLine("  Time Slot : (e.g. 09:00-10:00)\n  > ");
+    string err;
+    if (!validSlot(slot, err)) { cout << "  [!] " << err << "\n"; pause(); return; }
+ 
+    string conflict;
+    bool occupied = hasConflict(r->schedules, slot, conflict);
+ 
+    cout << "\n"; printLine();
+    cout << "  Room   : " << r->name << "\n";
+    cout << "  Slot   : " << slot << "\n";
+    cout << "  Status : " << (occupied ? "OCCUPIED (conflicts with " + conflict + ")" : "AVAILABLE") << "\n";
+    printLine();
+ 
+    if (!r->schedules.empty()) {
+        cout << "\n  Booked slots: " << joinStrings(r->schedules) << "\n";
+    }
+    pause();
+}
+ 
+void recommendRoom() {
+    clearScreen();
+    printLine('=', 58);
+    cout << "  RECOMMEND BEST ROOM" << endl;
+    printLine('=', 58);
+ 
+    int users = readInt("\n  No. of Users   : ");
+    string feat = toLower(trim(readLine("  Feature needed : (press Enter to skip)\n  > ")));
+    string slot = readLine("  Time Slot      : (e.g. 09:00-10:00)\n  > ");
+ 
+    string err;
+    if (!validSlot(slot, err)) { cout << "  [!] " << err << "\n"; pause(); return; }
+ 
+    struct Candidate { string name; int cap, score; vector<string> features; };
+    vector<Candidate> list;
+ 
+    for (const Room& r : rooms) {
+        string dummy;
+        if (hasConflict(r.schedules, slot, dummy)) continue;
+        if (r.capacity < users) continue;
+        int score = 15 - min((r.capacity - users) / 10, 5);
+        for (const string& f : r.features)
+            if (!feat.empty() && f == feat) { score += 5; break; }
+        list.push_back({r.name, r.capacity, score, r.features});
+    }
+ 
+    cout << "\n"; printLine();
+ 
+    if (list.empty()) {
+        cout << "  [!] No suitable room found.\n";
+        printLine(); pause(); return;
+    }
+ 
+    sort(list.begin(), list.end(), [](const Candidate& a, const Candidate& b) {
+        return a.score > b.score;
+    });
+ 
+    cout << "  TOP RECOMMENDATION\n"; printLine();
+    cout << "  Room     : " << list[0].name << "\n";
+    cout << "  Capacity : " << list[0].cap << " seats\n";
+    cout << "  Score    : " << list[0].score << "\n";
+    cout << "  Features : " << joinStrings(list[0].features) << "\n";
+ 
+    if (list.size() > 1) {
+        cout << "\n  ALL RANKED MATCHES:\n"; printLine();
+        cout << left << setw(5) << "Rank" << setw(18) << "Room"
+             << setw(8) << "Score" << "Capacity\n";
+        printLine();
+        for (size_t i = 0; i < list.size(); i++)
+            cout << left << setw(5) << ("#" + to_string(i+1))
+                 << setw(18) << list[i].name
+                 << setw(8)  << list[i].score
+                 << list[i].cap << " seats\n";
+    }
+    printLine();
+    pause();
+}
+ 
+void showMenu() {
+    clearScreen();
+    printLine('=', 58);
+    cout << "  SMART CAMPUS ROOM AVAILABILITY SYSTEM\n";
+    cout << "  Batangas State University | CC 102\n";
+    printLine('=', 58);
+    cout << "\n  [1] View Room Summary\n";
+    cout << "  [2] Add Room Schedule\n";
+    cout << "  [3] Check Room Availability\n";
+    cout << "  [4] Recommend Best Room\n";
+    cout << "  [0] Exit\n\n";
+    printLine('=', 58);
+    cout << "  Rooms in system: " << rooms.size() << "\n";
+    printLine('=', 58);
+    cout << "\n  Choice: ";
+}
+ 
+int main() {
+    initData();
+    int choice;
+    while (true) {
+        showMenu();
+        if (!(cin >> choice)) {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            choice = -1;
+        } else {
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        }
+        switch (choice) {
+            case 1: viewSummary();       break;
+            case 2: addSchedule();       break;
+            case 3: checkAvailability(); break;
+            case 4: recommendRoom();     break;
+            case 0:
+                cout << "\n  Goodbye!\n\n";
+                return 0;
+            default:
+                cout << "\n  [!] Invalid choice. Enter 0-4.\n";
+                pause();
+        }
+    }
+}
+
     
