@@ -25,7 +25,7 @@ void pause() {
     cin.get();
 }
 
-void clearScreen() { cout << string(3, '\n'); }
+void clearScreen() { cout << string(1, '\n'); }
 
 string trim(const string& s) {
     size_t a = s.find_first_not_of(" \t");
@@ -143,10 +143,10 @@ void addSchedule() {
     cout << "  ADD ROOM SCHEDULE" << endl;
     printLine('=', 58);
 
-    string name = readLine("\n  Room Name : ");
+    string name = readLine("\n  Room Name        : ");
     if (name.empty()) { cout << "  [!] Name cannot be empty.\n"; pause(); return; }
 
-    int cap = readInt("  Capacity  : ");
+    int cap = readInt("  Number of Users  : ");
     string featInput = readLine("  Features  : (e.g. projector, whiteboard)\n  > ");
     string slot = readLine("  Time Slot : (e.g. 08:00-09:00)\n  > ");
 
