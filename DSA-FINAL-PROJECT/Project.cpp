@@ -14,7 +14,6 @@ struct Room {
     vector<string> features;
     vector<string> schedules;
 };
-
 vector<Room> rooms;
 
 string trim(const string& s) {
@@ -22,13 +21,11 @@ string trim(const string& s) {
     size_t b = s.find_last_not_of(" \t");
     return (a == string::npos) ? "" : s.substr(a, b - a + 1);
 }
-
 string toLower(const string& s) {
     string r = s;
     for (char& c : r) c = tolower(c);
     return r;
 }
-
 vector<string> splitComma(const string& s) {
     vector<string> res;
     stringstream ss(s);
@@ -39,7 +36,6 @@ vector<string> splitComma(const string& s) {
     }
     return res;
 }
-
 string joinStrings(const vector<string>& v) {
     string r;
     for (size_t i = 0; i < v.size(); i++) {
@@ -48,7 +44,6 @@ string joinStrings(const vector<string>& v) {
     }
     return r;
 }
-
 int parseTime(const string& t) {
     if (t.size() != 5 || t[2] != ':') return -1;
     for (int i = 0; i < 5; i++) {
@@ -58,7 +53,6 @@ int parseTime(const string& t) {
     int h = stoi(t.substr(0, 2)), m = stoi(t.substr(3, 2));
     return (h > 23 || m > 59) ? -1 : h * 60 + m;
 }
-
 bool validSlot(const string& slot, string& err) {
     if (slot.size() != 11 || slot[5] != '-') {
         err = "Use format HH:MM-HH:MM (e.g. 08:00-09:00).";
@@ -69,7 +63,6 @@ bool validSlot(const string& slot, string& err) {
     if (s >= e) { err = "Start must be before end time."; return false; }
     return true;
 }
-
 bool hasConflict(const vector<string>& slots, const string& newSlot, string& found) {
     int ns = parseTime(newSlot.substr(0, 5)), ne = parseTime(newSlot.substr(6));
     for (const string& s : slots) {
@@ -78,14 +71,12 @@ bool hasConflict(const vector<string>& slots, const string& newSlot, string& fou
     }
     return false;
 }
-
 Room* findRoom(const string& name) {
     string n = toLower(trim(name));
     for (Room& r : rooms)
         if (toLower(r.name) == n) return &r;
     return nullptr;
 }
-
 void initData() {
     rooms = {
         {"Room 101",     30,  {"projector","whiteboard","air conditioning"},                {"08:00-09:00","10:00-11:00"}},
@@ -95,7 +86,6 @@ void initData() {
         {"Seminar Hall", 100, {"projector","sound system","whiteboard","air conditioning"}, {"15:00-17:00"}}
     };
 }
-
 void showMenu() {
     cout << "\n";
     cout << string(58, '=') << "\n";
@@ -112,7 +102,6 @@ void showMenu() {
     cout << string(58, '=') << "\n";
     cout << "\n  Choice: ";
 }
-
 void viewSummary() {
     cout << "\n";
     cout << string(58, '=') << "\n";
@@ -133,7 +122,6 @@ void viewSummary() {
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
     cin.get();
 }
-
 void addSchedule() {
     cout << "\n";
     cout << string(58, '=') << "\n";
@@ -151,7 +139,6 @@ void addSchedule() {
         cin.get();
         return;
     }
-
     int cap;
     while (true) {
         cout << "  Number of Users  : ";
@@ -163,7 +150,6 @@ void addSchedule() {
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
         cout << "  [!] Enter a valid positive number.\n";
     }
-
     cout << "  Features   : (e.g. projector, whiteboard)\n  > ";
     string featInput;
     getline(cin, featInput);
@@ -181,7 +167,6 @@ void addSchedule() {
         cin.get();
         return;
     }
-
     Room* r = findRoom(name);
     if (r) {
         string conflict;
@@ -199,12 +184,10 @@ void addSchedule() {
         rooms.push_back({name, cap, splitComma(featInput), {slot}});
         cout << "\n  [OK] Room '" << name << "' created with slot '" << slot << "'.\n";
     }
-
     cout << "\n  Press Enter to continue...";
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
     cin.get();
 }
-
 void checkAvailability() {
     cout << "\n";
     cout << string(58, '=') << "\n";
@@ -215,12 +198,10 @@ void checkAvailability() {
     for (size_t i = 0; i < rooms.size(); i++)
         cout << rooms[i].name << (i < rooms.size() - 1 ? ", " : "");
     cout << "\n\n";
-
     cout << "  Room Name : ";
     string name;
     getline(cin, name);
     name = trim(name);
-
     Room* r = findRoom(name);
     if (!r) {
         cout << "  [!] Room not found.\n";
@@ -229,7 +210,6 @@ void checkAvailability() {
         cin.get();
         return;
     }
-
     cout << "  Time Slot : (e.g. 09:00-10:00)\n  > ";
     string slot;
     getline(cin, slot);
@@ -243,7 +223,6 @@ void checkAvailability() {
         cin.get();
         return;
     }
-
     string conflict;
     bool occupied = hasConflict(r->schedules, slot, conflict);
 
@@ -263,13 +242,11 @@ void checkAvailability() {
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
     cin.get();
 }
-
 void recommendRoom() {
     cout << "\n";
     cout << string(58, '=') << "\n";
     cout << "  RECOMMEND BEST ROOM\n";
     cout << string(58, '=') << "\n";
-
     int users;
     while (true) {
         cout << "\n  No. of Users   : ";
@@ -281,7 +258,6 @@ void recommendRoom() {
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
         cout << "  [!] Enter a valid positive number.\n";
     }
-
     cout << "  Feature needed : (press Enter to skip)\n  > ";
     string feat;
     getline(cin, feat);
@@ -291,7 +267,6 @@ void recommendRoom() {
     string slot;
     getline(cin, slot);
     slot = trim(slot);
-
     string err;
     if (!validSlot(slot, err)) {
         cout << "  [!] " << err << "\n";
@@ -300,7 +275,6 @@ void recommendRoom() {
         cin.get();
         return;
     }
-
     struct Candidate { string name; int cap, score; vector<string> features; };
     vector<Candidate> list;
 
@@ -313,7 +287,6 @@ void recommendRoom() {
             if (!feat.empty() && f == feat) { score += 5; break; }
         list.push_back({r.name, r.capacity, score, r.features});
     }
-
     cout << "\n";
     cout << string(58, '-') << "\n";
 
@@ -325,18 +298,15 @@ void recommendRoom() {
         cin.get();
         return;
     }
-
     sort(list.begin(), list.end(), [](const Candidate& a, const Candidate& b) {
         return a.score > b.score;
     });
-
     cout << "  TOP RECOMMENDATION\n";
     cout << string(58, '-') << "\n";
     cout << "  Room     : " << list[0].name << "\n";
     cout << "  Capacity : " << list[0].cap << " seats\n";
     cout << "  Score    : " << list[0].score << "\n";
     cout << "  Features : " << joinStrings(list[0].features) << "\n";
-
     if (list.size() > 1) {
         cout << "\n  ALL RANKED MATCHES:\n";
         cout << string(58, '-') << "\n";
@@ -349,13 +319,11 @@ void recommendRoom() {
                          << setw(8)  << list[i].score
                          << list[i].cap << " seats\n";
     }
-
     cout << string(58, '-') << "\n";
     cout << "\n  Press Enter to continue...";
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
     cin.get();
 }
-
 int main() {
     initData();
     int choice;
@@ -370,7 +338,6 @@ int main() {
         } else {
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
         }
-
         switch (choice) {
             case 1: viewSummary();       break;
             case 2: addSchedule();       break;
