@@ -17,16 +17,6 @@ struct Room {
 
 vector<Room> rooms;
 
-void printLine(char c = '-', int w = 58) { cout << string(w, c) << endl; }
-
-void pause() {
-    cout << "\n  Press Enter to continue...";
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    cin.get();
-}
-
-void clearScreen() { cout << string(1, '\n'); }
-
 string trim(const string& s) {
     size_t a = s.find_first_not_of(" \t");
     size_t b = s.find_last_not_of(" \t");
@@ -96,69 +86,111 @@ Room* findRoom(const string& name) {
     return nullptr;
 }
 
-string readLine(const string& prompt) {
-    cout << prompt;
-    string s; getline(cin, s);
-    return trim(s);
-}
-
-int readInt(const string& prompt) {
-    int v;
-    while (true) {
-        cout << prompt;
-        if (cin >> v && v > 0) { cin.ignore(numeric_limits<streamsize>::max(), '\n'); return v; }
-        cin.clear(); cin.ignore(numeric_limits<streamsize>::max(), '\n');
-        cout << "  [!] Enter a valid positive number.\n";
-    }
-}
-
 void initData() {
     rooms = {
-        {"Room 101",    30,  {"projector","whiteboard","air conditioning"},          {"08:00-09:00","10:00-11:00"}},
-        {"Room 202",    50,  {"projector","sound system","air conditioning"},        {"09:00-10:00","13:00-14:00"}},
-        {"Lab 301",     40,  {"computers","projector","air conditioning"},           {"07:00-08:00","11:00-12:00"}},
-        {"Conference A",20,  {"whiteboard","tv screen","air conditioning"},          {"14:00-15:00"}},
-        {"Seminar Hall",100, {"projector","sound system","whiteboard","air conditioning"},{"15:00-17:00"}}
+        {"Room 101",     30,  {"projector","whiteboard","air conditioning"},                {"08:00-09:00","10:00-11:00"}},
+        {"Room 202",     50,  {"projector","sound system","air conditioning"},              {"09:00-10:00","13:00-14:00"}},
+        {"Lab 301",      40,  {"computers","projector","air conditioning"},                 {"07:00-08:00","11:00-12:00"}},
+        {"Conference A", 20,  {"whiteboard","tv screen","air conditioning"},                {"14:00-15:00"}},
+        {"Seminar Hall", 100, {"projector","sound system","whiteboard","air conditioning"}, {"15:00-17:00"}}
     };
 }
 
+void showMenu() {
+    cout << "\n";
+    cout << string(58, '=') << "\n";
+    cout << "  SMART CAMPUS ROOM AVAILABILITY AND RECOMMENDATION SYSTEM\n";
+    cout << "  Batangas State University | CC 102\n";
+    cout << string(58, '=') << "\n";
+    cout << "\n  [1] View Room Summary\n";
+    cout << "  [2] Add Room Schedule\n";
+    cout << "  [3] Check Room Availability\n";
+    cout << "  [4] Recommend Best Room\n";
+    cout << "  [0] Exit\n\n";
+    cout << string(58, '=') << "\n";
+    cout << "  Rooms in system: " << rooms.size() << "\n";
+    cout << string(58, '=') << "\n";
+    cout << "\n  Choice: ";
+}
+
 void viewSummary() {
-    clearScreen();
-    printLine('=', 58);
-    cout << "  ROOM SUMMARY  (" << rooms.size() << " rooms)" << endl;
-    printLine('=', 58);
+    cout << "\n";
+    cout << string(58, '=') << "\n";
+    cout << "  ROOM SUMMARY  (" << rooms.size() << " rooms)\n";
+    cout << string(58, '=') << "\n";
+
     for (const Room& r : rooms) {
         cout << "\n  Room     : " << r.name << "\n";
         cout << "  Capacity : " << r.capacity << " seats\n";
         cout << "  Features : " << joinStrings(r.features) << "\n";
-        cout << "  Schedule : " << (r.schedules.empty() ? "None" : joinStrings(r.schedules)) << "\n";
-        printLine();
+        cout << "  Schedule : "
+             << (r.schedules.empty() ? "None" : joinStrings(r.schedules))
+             << "\n";
+        cout << string(58, '-') << "\n";
     }
-    pause();
+
+    cout << "\n  Press Enter to continue...";
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    cin.get();
 }
 
 void addSchedule() {
-    clearScreen();
-    printLine('=', 58);
-    cout << "  ADD ROOM SCHEDULE" << endl;
-    printLine('=', 58);
+    cout << "\n";
+    cout << string(58, '=') << "\n";
+    cout << "  ADD ROOM SCHEDULE\n";
+    cout << string(58, '=') << "\n";
 
-    string name = readLine("\n  Room Name        : ");
-    if (name.empty()) { cout << "  [!] Name cannot be empty.\n"; pause(); return; }
+    cout << "\n  Room Name  : ";
+    string name;
+    getline(cin, name);
+    name = trim(name);
+    if (name.empty()) {
+        cout << "  [!] Name cannot be empty.\n";
+        cout << "\n  Press Enter to continue...";
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        cin.get();
+        return;
+    }
 
-    int cap = readInt("  Number of Users  : ");
-    string featInput = readLine("  Features  : (e.g. projector, whiteboard)\n  > ");
-    string slot = readLine("  Time Slot : (e.g. 08:00-09:00)\n  > ");
+    int cap;
+    while (true) {
+        cout << "  Number of Users  : ";
+        if (cin >> cap && cap > 0) {
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            break;
+        }
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        cout << "  [!] Enter a valid positive number.\n";
+    }
+
+    cout << "  Features   : (e.g. projector, whiteboard)\n  > ";
+    string featInput;
+    getline(cin, featInput);
+
+    cout << "  Time Slot : (e.g. 08:00-09:00)\n  > ";
+    string slot;
+    getline(cin, slot);
+    slot = trim(slot);
 
     string err;
-    if (!validSlot(slot, err)) { cout << "  [!] " << err << "\n"; pause(); return; }
- 
+    if (!validSlot(slot, err)) {
+        cout << "  [!] " << err << "\n";
+        cout << "\n  Press Enter to continue...";
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        cin.get();
+        return;
+    }
+
     Room* r = findRoom(name);
     if (r) {
         string conflict;
         if (hasConflict(r->schedules, slot, conflict)) {
             cout << "\n  [!] Conflict with existing slot: " << conflict << "\n";
-            pause(); return;
+            cout << "\n  Press Enter to continue...";
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cin.get();
+            return;
         }
         r->schedules.push_back(slot);
         sort(r->schedules.begin(), r->schedules.end());
@@ -167,58 +199,111 @@ void addSchedule() {
         rooms.push_back({name, cap, splitComma(featInput), {slot}});
         cout << "\n  [OK] Room '" << name << "' created with slot '" << slot << "'.\n";
     }
-    pause();
+
+    cout << "\n  Press Enter to continue...";
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    cin.get();
 }
+
 void checkAvailability() {
-    clearScreen();
-    printLine('=', 58);
-    cout << "  CHECK ROOM AVAILABILITY" << endl;
-    printLine('=', 58);
- 
+    cout << "\n";
+    cout << string(58, '=') << "\n";
+    cout << "  CHECK ROOM AVAILABILITY\n";
+    cout << string(58, '=') << "\n";
+
     cout << "\n  Rooms: ";
     for (size_t i = 0; i < rooms.size(); i++)
-        cout << rooms[i].name << (i < rooms.size()-1 ? ", " : "");
+        cout << rooms[i].name << (i < rooms.size() - 1 ? ", " : "");
     cout << "\n\n";
- 
-    string name = readLine("  Room Name : ");
+
+    cout << "  Room Name : ";
+    string name;
+    getline(cin, name);
+    name = trim(name);
+
     Room* r = findRoom(name);
-    if (!r) { cout << "  [!] Room not found.\n"; pause(); return; }
- 
-    string slot = readLine("  Time Slot : (e.g. 09:00-10:00)\n  > ");
+    if (!r) {
+        cout << "  [!] Room not found.\n";
+        cout << "\n  Press Enter to continue...";
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        cin.get();
+        return;
+    }
+
+    cout << "  Time Slot : (e.g. 09:00-10:00)\n  > ";
+    string slot;
+    getline(cin, slot);
+    slot = trim(slot);
+
     string err;
-    if (!validSlot(slot, err)) { cout << "  [!] " << err << "\n"; pause(); return; }
- 
+    if (!validSlot(slot, err)) {
+        cout << "  [!] " << err << "\n";
+        cout << "\n  Press Enter to continue...";
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        cin.get();
+        return;
+    }
+
     string conflict;
     bool occupied = hasConflict(r->schedules, slot, conflict);
- 
-    cout << "\n"; printLine();
+
+    cout << "\n";
+    cout << string(58, '-') << "\n";
     cout << "  Room   : " << r->name << "\n";
     cout << "  Slot   : " << slot << "\n";
-    cout << "  Status : " << (occupied ? "OCCUPIED (conflicts with " + conflict + ")" : "AVAILABLE") << "\n";
-    printLine();
- 
-    if (!r->schedules.empty()) {
+    cout << "  Status : "
+         << (occupied ? "OCCUPIED (conflicts with " + conflict + ")" : "AVAILABLE")
+         << "\n";
+    cout << string(58, '-') << "\n";
+
+    if (!r->schedules.empty())
         cout << "\n  Booked slots: " << joinStrings(r->schedules) << "\n";
-    }
-    pause();
+
+    cout << "\n  Press Enter to continue...";
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    cin.get();
 }
- 
+
 void recommendRoom() {
-    clearScreen();
-    printLine('=', 58);
-    cout << "  RECOMMEND BEST ROOM" << endl;
-    printLine('=', 58);
- 
-    int users = readInt("\n  No. of Users   : ");
-    string feat = toLower(trim(readLine("  Feature needed : (press Enter to skip)\n  > ")));
-    string slot = readLine("  Time Slot      : (e.g. 09:00-10:00)\n  > ");
- 
+    cout << "\n";
+    cout << string(58, '=') << "\n";
+    cout << "  RECOMMEND BEST ROOM\n";
+    cout << string(58, '=') << "\n";
+
+    int users;
+    while (true) {
+        cout << "\n  No. of Users   : ";
+        if (cin >> users && users > 0) {
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            break;
+        }
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        cout << "  [!] Enter a valid positive number.\n";
+    }
+
+    cout << "  Feature needed : (press Enter to skip)\n  > ";
+    string feat;
+    getline(cin, feat);
+    feat = toLower(trim(feat));
+
+    cout << "  Time Slot      : (e.g. 09:00-10:00)\n  > ";
+    string slot;
+    getline(cin, slot);
+    slot = trim(slot);
+
     string err;
-    if (!validSlot(slot, err)) { cout << "  [!] " << err << "\n"; pause(); return; }
- 
+    if (!validSlot(slot, err)) {
+        cout << "  [!] " << err << "\n";
+        cout << "\n  Press Enter to continue...";
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        cin.get();
+        return;
+    }
+
     struct Candidate { string name; int cap, score; vector<string> features; };
     vector<Candidate> list;
- 
+
     for (const Room& r : rooms) {
         string dummy;
         if (hasConflict(r.schedules, slot, dummy)) continue;
@@ -228,61 +313,56 @@ void recommendRoom() {
             if (!feat.empty() && f == feat) { score += 5; break; }
         list.push_back({r.name, r.capacity, score, r.features});
     }
- 
-    cout << "\n"; printLine();
- 
+
+    cout << "\n";
+    cout << string(58, '-') << "\n";
+
     if (list.empty()) {
         cout << "  [!] No suitable room found.\n";
-        printLine(); pause(); return;
+        cout << string(58, '-') << "\n";
+        cout << "\n  Press Enter to continue...";
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        cin.get();
+        return;
     }
- 
+
     sort(list.begin(), list.end(), [](const Candidate& a, const Candidate& b) {
         return a.score > b.score;
     });
- 
-    cout << "  TOP RECOMMENDATION\n"; printLine();
+
+    cout << "  TOP RECOMMENDATION\n";
+    cout << string(58, '-') << "\n";
     cout << "  Room     : " << list[0].name << "\n";
     cout << "  Capacity : " << list[0].cap << " seats\n";
     cout << "  Score    : " << list[0].score << "\n";
     cout << "  Features : " << joinStrings(list[0].features) << "\n";
- 
+
     if (list.size() > 1) {
-        cout << "\n  ALL RANKED MATCHES:\n"; printLine();
+        cout << "\n  ALL RANKED MATCHES:\n";
+        cout << string(58, '-') << "\n";
         cout << left << setw(5) << "Rank" << setw(18) << "Room"
              << setw(8) << "Score" << "Capacity\n";
-        printLine();
+        cout << string(58, '-') << "\n";
         for (size_t i = 0; i < list.size(); i++)
-            cout << left << setw(5) << ("#" + to_string(i+1))
-                 << setw(18) << list[i].name
-                 << setw(8)  << list[i].score
-                 << list[i].cap << " seats\n";
+            cout << left << setw(5)  << ("#" + to_string(i + 1))
+                         << setw(18) << list[i].name
+                         << setw(8)  << list[i].score
+                         << list[i].cap << " seats\n";
     }
-    printLine();
-    pause();
+
+    cout << string(58, '-') << "\n";
+    cout << "\n  Press Enter to continue...";
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    cin.get();
 }
- 
-void showMenu() {
-    clearScreen();
-    printLine('=', 58);
-    cout << "  SMART CAMPUS ROOM AVAILABILITY SYSTEM\n";
-    cout << "  Batangas State University | CC 102\n";
-    printLine('=', 58);
-    cout << "\n  [1] View Room Summary\n";
-    cout << "  [2] Add Room Schedule\n";
-    cout << "  [3] Check Room Availability\n";
-    cout << "  [4] Recommend Best Room\n";
-    cout << "  [0] Exit\n\n";
-    printLine('=', 58);
-    cout << "  Rooms in system: " << rooms.size() << "\n";
-    printLine('=', 58);
-    cout << "\n  Choice: ";
-}
- 
+
 int main() {
     initData();
     int choice;
+
     while (true) {
         showMenu();
+
         if (!(cin >> choice)) {
             cin.clear();
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
@@ -290,6 +370,7 @@ int main() {
         } else {
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
         }
+
         switch (choice) {
             case 1: viewSummary();       break;
             case 2: addSchedule();       break;
@@ -300,9 +381,9 @@ int main() {
                 return 0;
             default:
                 cout << "\n  [!] Invalid choice. Enter 0-4.\n";
-                pause();
+                cout << "\n  Press Enter to continue...";
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                cin.get();
         }
     }
 }
-
-    
