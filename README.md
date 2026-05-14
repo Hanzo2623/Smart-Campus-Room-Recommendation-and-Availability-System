@@ -85,8 +85,8 @@ struct Room {
 
 ```text
 ══════════════════════════════════════════════════════
-  SMART CAMPUS ROOM AVAILABILITY SYSTEM
-  Batangas State University | CC 102
+ SMART CAMPUS ROOM AVAILABILITY AND RECOMMENDATION SYSTEM
+ Batangas State University | CC 102
 ══════════════════════════════════════════════════════
 
   [1] View Room Summary
