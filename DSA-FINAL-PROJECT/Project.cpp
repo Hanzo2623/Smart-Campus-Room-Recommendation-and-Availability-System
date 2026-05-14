@@ -14,6 +14,7 @@ struct Room {
     vector<string> features;
     vector<string> schedules;
 };
+
 vector<Room> rooms;
 
 string trim(const string& s) {
@@ -21,11 +22,13 @@ string trim(const string& s) {
     size_t b = s.find_last_not_of(" \t");
     return (a == string::npos) ? "" : s.substr(a, b - a + 1);
 }
+
 string toLower(const string& s) {
     string r = s;
     for (char& c : r) c = tolower(c);
     return r;
 }
+
 vector<string> splitComma(const string& s) {
     vector<string> res;
     stringstream ss(s);
@@ -36,6 +39,7 @@ vector<string> splitComma(const string& s) {
     }
     return res;
 }
+
 string joinStrings(const vector<string>& v) {
     string r;
     for (size_t i = 0; i < v.size(); i++) {
@@ -44,6 +48,7 @@ string joinStrings(const vector<string>& v) {
     }
     return r;
 }
+
 int parseTime(const string& t) {
     if (t.size() != 5 || t[2] != ':') return -1;
     for (int i = 0; i < 5; i++) {
@@ -53,6 +58,7 @@ int parseTime(const string& t) {
     int h = stoi(t.substr(0, 2)), m = stoi(t.substr(3, 2));
     return (h > 23 || m > 59) ? -1 : h * 60 + m;
 }
+
 bool validSlot(const string& slot, string& err) {
     if (slot.size() != 11 || slot[5] != '-') {
         err = "Use format HH:MM-HH:MM (e.g. 08:00-09:00).";
@@ -63,6 +69,7 @@ bool validSlot(const string& slot, string& err) {
     if (s >= e) { err = "Start must be before end time."; return false; }
     return true;
 }
+
 bool hasConflict(const vector<string>& slots, const string& newSlot, string& found) {
     int ns = parseTime(newSlot.substr(0, 5)), ne = parseTime(newSlot.substr(6));
     for (const string& s : slots) {
@@ -71,12 +78,14 @@ bool hasConflict(const vector<string>& slots, const string& newSlot, string& fou
     }
     return false;
 }
+
 Room* findRoom(const string& name) {
     string n = toLower(trim(name));
     for (Room& r : rooms)
         if (toLower(r.name) == n) return &r;
     return nullptr;
 }
+
 void initData() {
     rooms = {
         {"Room 101",     30,  {"projector","whiteboard","air conditioning"},                {"08:00-09:00","10:00-11:00"}},
@@ -86,6 +95,7 @@ void initData() {
         {"Seminar Hall", 100, {"projector","sound system","whiteboard","air conditioning"}, {"15:00-17:00"}}
     };
 }
+
 void showMenu() {
     cout << "\n";
     cout << string(58, '=') << "\n";
@@ -102,6 +112,7 @@ void showMenu() {
     cout << string(58, '=') << "\n";
     cout << "\n  Choice: ";
 }
+
 void viewSummary() {
     cout << "\n";
     cout << string(58, '=') << "\n";
@@ -117,17 +128,16 @@ void viewSummary() {
              << "\n";
         cout << string(58, '-') << "\n";
     }
-
     cout << "\n  Press Enter to continue...";
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
     cin.get();
 }
+
 void addSchedule() {
     cout << "\n";
     cout << string(58, '=') << "\n";
     cout << "  ADD ROOM SCHEDULE\n";
     cout << string(58, '=') << "\n";
-
     cout << "\n  Room Name  : ";
     string name;
     getline(cin, name);
@@ -139,6 +149,7 @@ void addSchedule() {
         cin.get();
         return;
     }
+    
     int cap;
     while (true) {
         cout << "  Number of Users  : ";
@@ -188,6 +199,7 @@ void addSchedule() {
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
     cin.get();
 }
+
 void checkAvailability() {
     cout << "\n";
     cout << string(58, '=') << "\n";
@@ -225,7 +237,6 @@ void checkAvailability() {
     }
     string conflict;
     bool occupied = hasConflict(r->schedules, slot, conflict);
-
     cout << "\n";
     cout << string(58, '-') << "\n";
     cout << "  Room   : " << r->name << "\n";
@@ -242,6 +253,7 @@ void checkAvailability() {
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
     cin.get();
 }
+
 void recommendRoom() {
     cout << "\n";
     cout << string(58, '=') << "\n";
@@ -324,13 +336,13 @@ void recommendRoom() {
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
     cin.get();
 }
+
 int main() {
     initData();
     int choice;
 
     while (true) {
         showMenu();
-
         if (!(cin >> choice)) {
             cin.clear();
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
